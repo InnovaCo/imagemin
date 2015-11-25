@@ -1,7 +1,6 @@
 'use strict';
 var bufferToVinyl = require('buffer-to-vinyl');
 var concatStream = require('concat-stream');
-var optional = require('optional');
 var PassThrough = require('readable-stream/passthrough');
 var streamCombiner = require('stream-combiner2');
 var vinylFs = require('vinyl-fs');
@@ -89,13 +88,6 @@ Imagemin.prototype.run = function (cb) {
 Imagemin.prototype.createStream = function () {
 	this.streams.unshift(this.getFiles());
 
-	if (this.streams.length === 1) {
-		this.use(Imagemin.gifsicle());
-		this.use(Imagemin.jpegtran());
-		this.use(Imagemin.optipng());
-		this.use(Imagemin.svgo());
-	}
-
 	if (this.dest()) {
 		this.streams.push(vinylFs.dest(this.dest()));
 	}
@@ -122,16 +114,3 @@ Imagemin.prototype.getFiles = function () {
  */
 
 module.exports = Imagemin;
-
-[
-	'gifsicle',
-	'jpegtran',
-	'optipng',
-	'svgo'
-].forEach(function (plugin) {
-	module.exports[plugin] = optional('imagemin-' + plugin) || function () {
-		return function () {
-			return new PassThrough({objectMode: true});
-		};
-	};
-});
